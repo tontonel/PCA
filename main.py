@@ -28,15 +28,19 @@ eigenvalues = np.real(eigenvalues)
 
 eigenvectors = np.real(eigenvectors)
 
+normalized_eigenvectors = np.zeros_like(eigenvectors)
+for i in range(len(eigenvectors)):
+    normalized_eigenvectors[:,i] = eigenvectors[:,i] / np.linalg.norm(eigenvectors[:,i])
+
 # Number of dimensions after dimension reduction
 n_components = 200
 
 # This is the random eigenvectors selection
-# selected_eigenvectors = eigenvectors[:, np.random.choice(eigenvectors.shape[1], n_components, replace=False)]
+selected_eigenvectors = normalized_eigenvectors[:, np.random.choice(eigenvectors.shape[1], n_components, replace=False)]
 
 # Traditional PCA
-selected_eigenvectors = eigenvectors[:, np.argsort(-eigenvalues)]
-selected_eigenvectors = selected_eigenvectors[:, :n_components]
+# selected_eigenvectors = normalized_eigenvectors[:, np.argsort(-eigenvalues)]
+# selected_eigenvectors = selected_eigenvectors[:, :n_components]
 
 transformed_data = np.dot(features, selected_eigenvectors)
 
