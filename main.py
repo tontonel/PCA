@@ -33,14 +33,18 @@ for i in range(len(eigenvectors)):
     normalized_eigenvectors[:,i] = eigenvectors[:,i] / np.linalg.norm(eigenvectors[:,i])
 
 # Number of dimensions after dimension reduction
-n_components = 200
+n_components = 1
+
+epsilon = 0.0000001
 
 # This is the random eigenvectors selection
-selected_eigenvectors = normalized_eigenvectors[:, np.random.choice(eigenvectors.shape[1], n_components, replace=False)]
+# positive_eigen_indices = np.where(eigenvalues > epsilon)[0]
+# selected_eigenvectors = normalized_eigenvectors[:, positive_eigen_indices]
+# selected_eigenvectors = selected_eigenvectors[:, np.random.choice(selected_eigenvectors.shape[1], n_components, replace=False)]
 
 # Traditional PCA
-# selected_eigenvectors = normalized_eigenvectors[:, np.argsort(-eigenvalues)]
-# selected_eigenvectors = selected_eigenvectors[:, :n_components]
+selected_eigenvectors = normalized_eigenvectors[:, np.argsort(-eigenvalues)]
+selected_eigenvectors = selected_eigenvectors[:, :n_components]
 
 transformed_data = np.dot(features, selected_eigenvectors)
 
@@ -50,11 +54,12 @@ train_data, test_data, train_labels, test_labels = train_test_split(transformed_
 model = tf.keras.models.Sequential([
     tf.keras.layers.Input(shape=(n_components,)),
     tf.keras.layers.Dense(128, activation='relu'),
-    tf.keras.layers.Dense(10, activation='softmax')
+    tf.keras.layers.Dense(1, activation='sigmoid')
 ])
 
 # Compile the model
-model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+
 
 # Train the model
 model.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
